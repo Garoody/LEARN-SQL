@@ -1,37 +1,104 @@
-```
-learn-sql
-├─ .env														# Ensemble des variables d'environnement pour le bon fonctionnement de l'application(ne pas versionner)
-├─ .gitignore		
-├─ complete-sql.md
-├─ database
-│  ├─ migrations  											# Tout le code SQL pour créer la base données et les tables
-│  │  ├─ 00_add_database_config.sql
-│  │  ├─ 01_add_security_role.sql
-│  │  ├─ 02_add_extensions.sql
-│  │  ├─ 02_add_types.sql
-│  │  ├─ 03_add_users_table.sql
-│  │  ├─ 04_add_tags_table.sql
-│  │  ├─ 05_add_items_table.sql
-│  │  ├─ 06_add_shares_table.sql
-│  │  ├─ 07_add_item_tags_table_pivot.sql
-│  │  ├─ 08_add_app_events_table.sql
-│  │  ├─ 09_drop_all_tables.sql
-│  │  └─ 10_drop_all_types.sql
-│  ├─ seeders 												 # Tout le code pour peupler les tables de la base de données
-│  │  ├─ 01_add_users_seeders.sql
-│  │  └─ 02_add_tags_seeders.sql
-│  ├─ triggers												 # Fonctions customs pour les tables de la base de données
-│  │  └─ 01_add_trigger_set_timestamp.sql
-│  └─ views												 # Création de vue pour l'affiche frontend
-├─ docs
-│  ├─ guide-sql.md
-│  └─ img
-│     ├─ commands-sql.png
-│     └─ postgresql-cheat-sheet-a4.pdf
-├─ exemple.env												# Exemple Ensemble des variables d'environnement pour le bon fonctionnement de l'application(doit être versionné)
-├─ README.md
-└─ scripts													# Ensemble des scripts d'automatisation pour l'application
-   ├─ init_db.sh
-   └─ reset_db.sh
+# 🐼 Memoria - Ton Deuxième Cerveau
 
+**Memoria** est un coffre-fort numérique personnel permettant de capturer, organiser et pérenniser tes pépites de savoir (extraits de livres, podcasts, articles, notes).
+
+---
+
+## 🛠 Technologie & Architecture
+
+- **Backend :** Node.js / Express.js
+- **Frontend :** React
+- **Database :** PostgreSQL 16+
+- **Stockage Images :** Externe (Cloudinary / Supabase Storage)
+
+---
+
+## 📁 Structure du Projet SQL
+
+```text
+learn-sql
+├─ scripts/                  # Scripts d'automatisation (Bash)
+├─ database/
+│  ├─ migrations/            # Structure (DDL) : Tables, Types, Config
+│  ├─ seeders/               # Données de test (DML)
+│  ├─ triggers/              # Automatismes (ex: updated_at)
+│  └─ views/                 # Vues métier pour le Frontend
+├─ docs/                     # Documentation et Aide-mémoire SQL
+└─ .env                      # Configuration (non versionné)
 ```
+
+---
+
+## 🚀 Getting Started (Base de données)
+
+### 1. Pré-requis
+
+- Avoir **PostgreSQL** installé et en cours d'exécution.
+- Avoir les droits administrateur (`postgres`) pour la création initiale.
+
+### 2. Configuration environnementale
+
+Copie le fichier d'exemple et ajuste tes accès si nécessaire :
+
+```bash
+cp env.example .env
+```
+
+Édite le `.env` :
+
+```env
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres       # Ton super-utilisateur local
+DB_PASSWORD=ton_pass   # Ton mot de passe admin
+DB_NAME=memoria_db_dev
+DB_APP_USER=app_memoria
+DB_APP_PASSWORD=unpandarouxquidort
+```
+
+### 3. Initialisation automatique
+
+Nous utilisons des scripts automatisés pour gagner du temps et éviter les erreurs manuelles.
+
+**Rendre les scripts exécutables (à faire une fois) :**
+
+```bash
+chmod +x scripts/*.sh
+```
+
+**Lancer l'installation complète :**
+
+```bash
+./scripts/init_db.sh
+```
+
+_Le script va créer la base, l'utilisateur applicatif, les types, les tables, les triggers et te proposera d'insérer les données de test (Seeders)._
+
+### 4. Réinitialisation (Reset)
+
+Si tu souhaites repartir de zéro :
+
+```bash
+./scripts/reset_db.sh
+```
+
+_(Attention : demande confirmation en tapant `RESET`)_
+
+---
+
+## 📊 Accès à la base de données
+
+Pour te connecter manuellement en ligne de commande avec le rôle de l'application :
+
+```bash
+psql -h localhost -U app_memoria -d memoria_db_dev
+```
+
+---
+
+## 💡 Notes de conception (Principe KISS)
+
+- **Sécurité :** Tous les IDs sont des `UUID` pour éviter l'énumération de données.
+- **Légalité :** Nous ne stockons pas de fichiers médias lourds/sous copyright, uniquement des métadonnées et des notes textuelles personnelles.
+- **RGPD :** Suppression en cascade activée. Si l'utilisateur supprime son compte, toutes ses données associées disparaissent.
+- **Vues :** Utilise les vues situées dans `database/views/` pour récupérer des données formatées (ex: `v_items_with_tags`) afin d'alléger le code du Backend.

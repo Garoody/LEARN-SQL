@@ -28,11 +28,11 @@ COMMENT ON TYPE auth_provider_enum IS 'Fournisseur d authentification';
 
 -- Types de contenu des pépites
 CREATE TYPE content_type_enum AS ENUM(
-    'Livre',
-    'Podcast',
-    'Article',
-    'Video',
-    'Note'
+    'livre',
+    'podcast',
+    'article',
+    'video',
+    'note'
 );
 
 COMMENT ON TYPE content_type_enum IS 'Types de contenu';

@@ -103,6 +103,13 @@ echo
 if [[ $REPLY =~ ^[Oo]$ ]]; then
     execute_sql_app "database/seeders/01_add_users_seeders.sql" "Utilisateurs de test"
     execute_sql_app "database/seeders/02_add_tags_seeders.sql" "Tags de test"
+    execute_sql_app "database/seeders/03_add_items_seeders.sql" "Items de test"
+    execute_sql_app "database/seeders/04_add_shares_seeders.sql" "Shares de test"
+    execute_sql_app "database/seeders/05_add_item_tags_seeders.sql" "Item_tags de test"
+    execute_sql_app "database/seeders/06_add_app_events_seeders.sql" "App_events de test"
+else
+    echo -e "${GREEN}✓ Annulation${NC}"
+    exit 0
 fi
 
 echo -e "${GREEN}✅ Base de données initialisée avec succès !${NC}"

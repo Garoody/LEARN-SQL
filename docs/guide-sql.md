@@ -27,6 +27,7 @@ DATABASE_URL=postgresql://app_memoria:unpandarouxquidort@localhost/memoria_db
 ```
 
 **Pourquoi ?**
+
 - `postgres` = super-admin → Peut supprimer TOUTE la base
 - `app_memoria` = droits limités → Risques réduits en cas de faille
 
@@ -45,6 +46,7 @@ INSERT INTO users (password_hash) VALUES ($1);  -- $1 = hash
 ```
 
 **Algorithmes recommandés :**
+
 - **bcrypt** (standard, 10-12 rounds)
 - **Argon2** (plus moderne, recommandé OWASP 2024)
 
@@ -69,11 +71,11 @@ CREATE TABLE items (
 
 ### **1. PostgreSQL crée automatiquement des index pour :**
 
-| **Contrainte** | **Index auto ?** | **Type** |
-|---|---|---|
-| `PRIMARY KEY` | ✅ OUI | B-tree UNIQUE |
-| `UNIQUE` | ✅ OUI | B-tree UNIQUE |
-| `FOREIGN KEY` | ❌ NON | *Aucun* (à créer manuellement) |
+| **Contrainte** | **Index auto ?** | **Type**                       |
+| -------------- | ---------------- | ------------------------------ |
+| `PRIMARY KEY`  | ✅ OUI           | B-tree UNIQUE                  |
+| `UNIQUE`       | ✅ OUI           | B-tree UNIQUE                  |
+| `FOREIGN KEY`  | ❌ NON           | _Aucun_ (à créer manuellement) |
 
 ```sql
 -- ❌ REDONDANT : email est déjà UNIQUE
@@ -143,6 +145,7 @@ CREATE INDEX idx_items_source_author ON items (source_author);  -- Rare
 ```
 
 **Coût d'un index inutile :**
+
 - +10-30% de stockage
 - +5-15% de temps sur INSERT/UPDATE
 - Aucun gain sur SELECT
@@ -163,6 +166,7 @@ event_category event_category_enum NOT NULL;
 ```
 
 **Avantages :**
+
 - Typage fort (erreur claire si valeur invalide)
 - Plus rapide (type natif vs contrainte)
 - Autodocumenté (`\dT` dans psql)
@@ -180,6 +184,7 @@ email CITEXT UNIQUE;
 ```
 
 **Extension requise :**
+
 ```sql
 CREATE EXTENSION IF NOT EXISTS "citext";
 ```
@@ -218,6 +223,7 @@ id_user UUID PRIMARY KEY DEFAULT uuidv7();
 ```
 
 **Avantages UUID v7 :**
+
 - Tri naturel par date de création
 - Meilleures performances d'index
 - Compatible avec toutes les bases UUID
@@ -237,6 +243,7 @@ app_events (0,1) ──── (1,N) users
 ```
 
 **En SQL :**
+
 ```sql
 user_id UUID REFERENCES users(id_user) ON DELETE SET NULL  -- Nullable !
 ```
@@ -258,10 +265,12 @@ CREATE TABLE app_events (
 ```
 
 **Quand utiliser CASCADE ?**
+
 - Données privées (items, tags)
 - RGPD obligatoire
 
 **Quand utiliser SET NULL ?**
+
 - Logs/Événements (audit trail)
 - Statistiques agrégées
 
@@ -288,6 +297,7 @@ FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 ```
 
 **Pourquoi ?**
+
 - Évite d'oublier de mettre à jour `updated_at` dans le code
 - Cohérence garantie (base de données = source de vérité)
 
@@ -300,7 +310,7 @@ FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 
 -- ✅ UUID v7 automatique
-id_user UUID PRIMARY KEY DEFAULT gen_random_uuid_v7()
+id_user UUID PRIMARY KEY DEFAULT uuidv7()
 
 -- ✅ JSONB vide par défaut
 metadata JSONB NOT NULL DEFAULT '{}'
@@ -349,6 +359,7 @@ ORDER BY similarity(title, 'penda') DESC;
 ## 📋 Checklist avant mise en production
 
 ### **✅ Sécurité**
+
 - [ ] Rôle applicatif créé (pas `postgres`)
 - [ ] Mots de passe hashés (bcrypt/Argon2)
 - [ ] RGPD : `ON DELETE CASCADE` sur données privées
@@ -356,18 +367,21 @@ ORDER BY similarity(title, 'penda') DESC;
 - [ ] Variables d'environnement sécurisées (.env)
 
 ### **✅ Performance**
+
 - [ ] Index sur toutes les Foreign Keys
 - [ ] Pas d'index redondants (vérifier avec UNIQUE)
 - [ ] Index GIN pour JSONB et full-text
 - [ ] UUID v7 au lieu de v4
 
 ### **✅ Intégrité**
+
 - [ ] Contraintes UNIQUE sur colonnes uniques
 - [ ] Contraintes CHECK pour les valeurs limitées (ou ENUM)
 - [ ] NOT NULL sur colonnes obligatoires
 - [ ] Trigger `updated_at` sur toutes les tables
 
 ### **✅ Documentation**
+
 - [ ] Commentaires SQL sur tables et colonnes
 - [ ] Diagramme de relations (ERD)
 - [ ] Guide d'utilisation (ce fichier !)
@@ -379,12 +393,14 @@ ORDER BY similarity(title, 'penda') DESC;
 > **"Keep It Simple, Stupid"**
 
 ### **✅ Faire simple**
+
 ```sql
 -- Simple et efficace
 email CITEXT UNIQUE NOT NULL
 ```
 
 ### **❌ Over-engineering**
+
 ```sql
 -- Complexe sans bénéfice
 CREATE TABLE email_validations (
@@ -398,6 +414,7 @@ CREATE TABLE email_validations (
 ```
 
 **Quand complexifier ?**
+
 - Besoin métier réel (pas "au cas où")
 - Performance mesurée (pas "je suppose que")
 - Sécurité exigée (RGPD, PCI-DSS)
