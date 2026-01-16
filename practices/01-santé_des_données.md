@@ -50,16 +50,21 @@ Si un utilisateur dit enregistrer une "Vidéo", on s'attend à ce que l'URL à l
 
 ---
 
-### 🔍 Exercice 1.4 : Diagnostic Technique
+### 🔍 Exercice 1.4 : Diagnostic Technique (Performance & Erreurs)
 
-**Le besoin métier :** Avant même d'avoir un écran, on doit savoir si l'application rencontre des problèmes. On utilise pour cela une table de logs : `app_events`.
+**Le besoin métier :** L'application doit nous alerter quand une requête est trop lente ou qu'une erreur survient. Toutes ces traces sont stockées dans la table `app_events`. Pour optimiser l'application, nous devons extraire les données techniques qui sont "enfermées" dans le format JSONB.
 
-- **Fichier :** `04_get_critical_logs.sql`
-- **Objectif :** Récupérer la date de l'événement et le message technique (caché lui aussi dans un champ JSONB nommé `event_data`) pour toutes les erreurs marquées comme 'critical'.
-- **Aide :** Tu vas devoir extraire la clé `'message'` qui se trouve à l'intérieur de `event_data`.
-- **Documentation :** Utilise la même logique que pour l'exercice précédent avec l'opérateur `->>`.
+- **Fichier :** `04_get_events_warnings.sql`
+- **Objectif :** Lister tous les avertissements pour analyser les performances. Tu dois récupérer le message principal, la durée (en ms) et la requête SQL concernée.
+- **Détails techniques :**
+  - Filtre sur la sévérité `'warning'`.
+  - Les informations de performance sont dans la colonne JSONB `metadata`.
+  - Tu dois extraire les clés `duration_ms` et `query`.
+- **Aide :** Utilise l'opérateur `->>` pour transformer la donnée JSON en texte exploitable dans tes colonnes.
 
----
+### 💡 Note pour l'équipe :
+
+C'est un exercice très important. En production, le format **JSONB** est le meilleur allié de Nodejs pour stocker des données flexibles (logs, préférences, options de paiement), mais il demande de savoir utiliser ces opérateurs fléchés (`->>`) pour que le SQL reste puissant.
 
 ### 💡 Un conseil pour la suite
 
